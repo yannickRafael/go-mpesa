@@ -173,6 +173,9 @@ func (c *Client) makeRequest(method, url string, body interface{}) (APIResponse,
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Origin", c.config.Origin)
 	req.Header.Set("Authorization", bearerToken)
+	// Add User-Agent to avoid WAF (Incapsula) blocking Go-http-client
+	// Using a standard Chrome User-Agent to ensure maximal compatibility
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
 
 	resp, err := c.client.Do(req)
 	if err != nil {

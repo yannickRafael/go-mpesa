@@ -1,3 +1,3 @@
 module github.com/yannickRafael/go-mpesa
 
-go 1.25.5
+go 1.23.4
