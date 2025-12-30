@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/http/cookiejar"
 	"time"
 )
 
@@ -17,10 +18,19 @@ type Client struct {
 
 // NewClient creates a new M-Pesa Client.
 func NewClient(config Config) *Client {
+	jar, err := cookiejar.New(nil)
+
+	if err != nil {
+		// In production you might want to handle this differently,
+		// but for now panic is acceptable as it's a fatal setup error.
+		panic(fmt.Sprintf("failed to create cookie jar: %v", err))
+	}
+
 	return &Client{
 		config: config,
 		client: &http.Client{
 			Timeout: 30 * time.Second,
+			Jar:     jar,
 		},
 	}
 }
@@ -173,9 +183,8 @@ func (c *Client) makeRequest(method, url string, body interface{}) (APIResponse,
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Origin", c.config.Origin)
 	req.Header.Set("Authorization", bearerToken)
-	// Add User-Agent to avoid WAF (Incapsula) blocking Go-http-client
-	// Using a standard Chrome User-Agent to ensure maximal compatibility
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
+	// Either remove UA or set a neutral one:
+	req.Header.Set("User-Agent", "mpesa-go-client/1.0")
 
 	resp, err := c.client.Do(req)
 	if err != nil {
@@ -188,14 +197,18 @@ func (c *Client) makeRequest(method, url string, body interface{}) (APIResponse,
 		return nil, fmt.Errorf("failed to read response body: %v", err)
 	}
 
-	// Check for non-2xx status codes (optional, but good practice, though Node lib just returns data)
-	// The node lib seems to return response.data regardless of status, but rejects on axios error.
-	// For now, we will parse JSON and return it.
+	// If it's clearly not JSON, surface that instead of trying to decode.
+	contentType := resp.Header.Get("Content-Type")
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 || contentType == "" || contentType == "text/html" {
+		return nil, fmt.Errorf(
+			"unexpected status or content-type: status=%d, content-type=%q, body=%s",
+			resp.StatusCode, contentType, string(respBytes),
+		)
+	}
 
 	var result APIResponse
 	if err := json.Unmarshal(respBytes, &result); err != nil {
-		// If response is not JSON, it might be an error string or empty
-		return nil, fmt.Errorf("failed to decode response: %v | Body: %s", err, string(respBytes))
+		return nil, fmt.Errorf("failed to decode JSON response: %v | Body: %s", err, string(respBytes))
 	}
 
 	return result, nil
