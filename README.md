@@ -6,7 +6,7 @@ Ported from [mpesa-mz-nodejs-lib](https://github.com/ivanruby/mpesa-mz-nodejs-li
 ## Installation
 
 ```bash
-go get github.com/coffeebit/go-mpesa
+go get github.com/yannickRafael/go-mpesa
 ```
 
 ## Usage
@@ -14,7 +14,7 @@ go get github.com/coffeebit/go-mpesa
 ### Configuration
 
 ```go
-import "github.com/coffeebit/go-mpesa"
+import "github.com/yannickRafael/go-mpesa"
 
 config := mpesa.Config{
     PublicKey:           "<Public Key>",
