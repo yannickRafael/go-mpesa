@@ -26,7 +26,10 @@ config := mpesa.Config{
     SecurityCredential:  "<Security Credential>",
 }
 
-client := mpesa.NewClient(config)
+client, err := mpesa.NewClient(config)
+if err != nil {
+    panic(err)
+}
 ```
 
 ### Customer to Business (C2B)

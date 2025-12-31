@@ -17,13 +17,11 @@ type Client struct {
 }
 
 // NewClient creates a new M-Pesa Client.
-func NewClient(config Config) *Client {
+func NewClient(config Config) (*Client, error) {
 	jar, err := cookiejar.New(nil)
 
 	if err != nil {
-		// In production you might want to handle this differently,
-		// but for now panic is acceptable as it's a fatal setup error.
-		panic(fmt.Sprintf("failed to create cookie jar: %v", err))
+		return nil, fmt.Errorf("failed to create cookie jar: %v", err)
 	}
 
 	return &Client{
@@ -32,7 +30,7 @@ func NewClient(config Config) *Client {
 			Timeout: 30 * time.Second,
 			Jar:     jar,
 		},
-	}
+	}, nil
 }
 
 // C2BRequest represents the data required for a C2B transaction.
