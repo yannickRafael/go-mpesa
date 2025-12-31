@@ -11,7 +11,6 @@ import (
 )
 
 // GenerateBearerToken generates a Bearer Token by encrypting the API Key with the Public Key.
-// It implements the logic found in the Node.js library:
 // 1. Formats the public key into a PEM block.
 // 2. Encrypts the API Key using RSA PKCS#1 v1.5.
 // 3. Base64 encodes the result.
