@@ -62,8 +62,6 @@ type B2CRequest struct {
 	ThirdPartyReference string
 }
 
-// APIResponse is a generic map for the response JSON.
-// In the future, this could be strongly typed based on specific response schemas.
 type APIResponse map[string]interface{}
 
 // C2B Initiates a C2B (Customer-to-Business) transaction.
@@ -100,8 +98,6 @@ func (c *Client) Query(req QueryRequest) (APIResponse, error) {
 
 	baseURL := fmt.Sprintf("https://%s:18353/ipg/v1x/queryTransactionStatus/", c.config.APIHost)
 
-	// Constructing URL with query params manually to match the node lib pattern,
-	// though net/url is usually better.
 	url := fmt.Sprintf("%s?input_ServiceProviderCode=%s&input_QueryReference=%s&input_ThirdPartyReference=%s",
 		baseURL,
 		c.config.ServiceProviderCode,
@@ -195,7 +191,6 @@ func (c *Client) makeRequest(method, url string, body interface{}) (APIResponse,
 		return nil, fmt.Errorf("failed to read response body: %v", err)
 	}
 
-	// If it's clearly not JSON, surface that instead of trying to decode.
 	contentType := resp.Header.Get("Content-Type")
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 || contentType == "" || contentType == "text/html" {
 		return nil, fmt.Errorf(
