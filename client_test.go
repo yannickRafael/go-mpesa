@@ -35,6 +35,13 @@ func TestEnrichResponseWithDescription(t *testing.T) {
 			expectedDesc: "Initiator authentication error.",
 		},
 		{
+			name: "C2B Error INS-2006",
+			inputResponse: APIResponse{
+				"output_ResponseCode": "INS-2006",
+			},
+			expectedDesc: "Insufficient balance",
+		},
+		{
 			name: "Unknown Code",
 			inputResponse: APIResponse{
 				"output_ResponseCode": "INS-9999",
