@@ -204,5 +204,34 @@ func (c *Client) makeRequest(method, url string, body interface{}) (APIResponse,
 		return nil, fmt.Errorf("failed to decode JSON response: %v | Body: %s", err, string(respBytes))
 	}
 
+	c.enrichResponseWithDescription(result)
+
 	return result, nil
+}
+
+// enrichResponseWithDescription adds a readable description to the response if a known code is present.
+func (c *Client) enrichResponseWithDescription(response APIResponse) {
+	if response == nil {
+		return
+	}
+
+	// helper to safely get string from map
+	getString := func(key string) string {
+		if val, ok := response[key]; ok {
+			if strVal, ok := val.(string); ok {
+				return strVal
+			}
+		}
+		return ""
+	}
+
+	code := getString("output_ResponseCode")
+	if code == "" {
+		return
+	}
+
+	if desc, exists := ResponseCodeDescriptions[code]; exists {
+		// We overwrite or add the description with our known good description
+		response["output_ResponseDesc"] = desc
+	}
 }
