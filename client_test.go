@@ -80,3 +80,83 @@ func TestEnrichResponseWithDescription(t *testing.T) {
 		})
 	}
 }
+
+func TestB2B(t *testing.T) {
+	c, _ := NewClient(Config{})
+
+	tests := []struct {
+		name    string
+		req     B2BRequest
+		wantErr bool
+		errMsg  string
+	}{
+		{
+			name: "Valid Request (Validation Only)",
+			req: B2BRequest{
+				Amount:              100,
+				PrimaryPartyCode:    "100000",
+				ReceiverPartyCode:   "200000",
+				Reference:           "REF123",
+				ThirdPartyReference: "TP123",
+			},
+			wantErr: true, // expect true because network call will fail
+		},
+		{
+			name: "Invalid Amount",
+			req: B2BRequest{
+				Amount:              0,
+				PrimaryPartyCode:    "100000",
+				ReceiverPartyCode:   "200000",
+				Reference:           "REF123",
+				ThirdPartyReference: "TP123",
+			},
+			wantErr: true,
+			errMsg:  "invalid amount",
+		},
+		{
+			name: "Missing PrimaryPartyCode",
+			req: B2BRequest{
+				Amount:              100,
+				ReceiverPartyCode:   "200000",
+				Reference:           "REF123",
+				ThirdPartyReference: "TP123",
+			},
+			wantErr: true,
+			errMsg:  "missing primary_party_code or receiver_party_code",
+		},
+		{
+			name: "Missing ReceiverPartyCode",
+			req: B2BRequest{
+				Amount:              100,
+				PrimaryPartyCode:    "100000",
+				Reference:           "REF123",
+				ThirdPartyReference: "TP123",
+			},
+			wantErr: true,
+			errMsg:  "missing primary_party_code or receiver_party_code",
+		},
+		{
+			name: "Missing Reference",
+			req: B2BRequest{
+				Amount:              100,
+				PrimaryPartyCode:    "100000",
+				ReceiverPartyCode:   "200000",
+				ThirdPartyReference: "TP123",
+			},
+			wantErr: true,
+			errMsg:  "missing reference or third_party_reference",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := c.B2B(tt.req)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("B2B() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if tt.errMsg != "" && err != nil && err.Error() != tt.errMsg {
+				t.Errorf("B2B() error = %v, want %v", err, tt.errMsg)
+			}
+		})
+	}
+}

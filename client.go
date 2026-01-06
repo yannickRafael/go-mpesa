@@ -154,6 +154,40 @@ func (c *Client) B2C(req B2CRequest) (APIResponse, error) {
 	return c.makeRequest("POST", url, payload)
 }
 
+// B2BRequest represents the data required for a B2B transaction.
+type B2BRequest struct {
+	Amount              float64
+	PrimaryPartyCode    string
+	ReceiverPartyCode   string
+	Reference           string
+	ThirdPartyReference string
+}
+
+// B2B Initiates a B2B (Business-to-Business) transaction.
+func (c *Client) B2B(req B2BRequest) (APIResponse, error) {
+	if !ValidateAmount(req.Amount) {
+		return nil, fmt.Errorf("invalid amount")
+	}
+	if req.PrimaryPartyCode == "" || req.ReceiverPartyCode == "" {
+		return nil, fmt.Errorf("missing primary_party_code or receiver_party_code")
+	}
+	if req.Reference == "" || req.ThirdPartyReference == "" {
+		return nil, fmt.Errorf("missing reference or third_party_reference")
+	}
+
+	url := fmt.Sprintf("https://%s:18349/ipg/v1x/b2bPayment/", c.config.APIHost)
+
+	payload := map[string]string{
+		"input_Amount":               fmt.Sprintf("%.2f", req.Amount),
+		"input_PrimaryPartyCode":     req.PrimaryPartyCode,
+		"input_ReceiverPartyCode":    req.ReceiverPartyCode,
+		"input_TransactionReference": req.Reference,
+		"input_ThirdPartyReference":  req.ThirdPartyReference,
+	}
+
+	return c.makeRequest("POST", url, payload)
+}
+
 func (c *Client) makeRequest(method, url string, body interface{}) (APIResponse, error) {
 	var reqBody io.Reader
 	if body != nil {
