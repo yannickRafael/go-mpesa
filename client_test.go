@@ -42,6 +42,13 @@ func TestEnrichResponseWithDescription(t *testing.T) {
 			expectedDesc: "Insufficient balance",
 		},
 		{
+			name: "B2C Error INS-996",
+			inputResponse: APIResponse{
+				"output_ResponseCode": "INS-996",
+			},
+			expectedDesc: "Customer Account Status Not Active",
+		},
+		{
 			name: "Unknown Code",
 			inputResponse: APIResponse{
 				"output_ResponseCode": "INS-9999",
