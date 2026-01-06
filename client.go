@@ -188,6 +188,35 @@ func (c *Client) B2B(req B2BRequest) (APIResponse, error) {
 	return c.makeRequest("POST", url, payload)
 }
 
+// QueryCustomerNameRequest represents the data required to query a customer's masked name.
+type QueryCustomerNameRequest struct {
+	CustomerMSISDN      string
+	ThirdPartyReference string
+}
+
+// QueryCustomerName retrieves the masked name of a customer.
+func (c *Client) QueryCustomerName(req QueryCustomerNameRequest) (APIResponse, error) {
+	if req.CustomerMSISDN == "" || req.ThirdPartyReference == "" {
+		return nil, fmt.Errorf("missing customer_msisdn or third_party_reference")
+	}
+
+	validMSISDN, ok := IsValidMSISDN(req.CustomerMSISDN)
+	if !ok {
+		return nil, fmt.Errorf("invalid MSISDN")
+	}
+
+	baseURL := fmt.Sprintf("https://%s:19323/ipg/v1x/queryCustomerName/", c.config.APIHost)
+
+	url := fmt.Sprintf("%s?input_CustomerMSISDN=%s&input_ThirdPartyReference=%s&input_ServiceProviderCode=%s",
+		baseURL,
+		validMSISDN,
+		req.ThirdPartyReference,
+		c.config.ServiceProviderCode,
+	)
+
+	return c.makeRequest("GET", url, nil)
+}
+
 func (c *Client) makeRequest(method, url string, body interface{}) (APIResponse, error) {
 	var reqBody io.Reader
 	if body != nil {
