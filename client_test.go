@@ -28,6 +28,13 @@ func TestEnrichResponseWithDescription(t *testing.T) {
 			expectedDesc: "Duplicate Transaction",
 		},
 		{
+			name: "Reversal Error INS-2001",
+			inputResponse: APIResponse{
+				"output_ResponseCode": "INS-2001",
+			},
+			expectedDesc: "Initiator authentication error.",
+		},
+		{
 			name: "Unknown Code",
 			inputResponse: APIResponse{
 				"output_ResponseCode": "INS-9999",
