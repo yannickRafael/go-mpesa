@@ -1,5 +1,12 @@
 package mpesa
 
+const (
+	// DefaultAPIHost is the default hostname for the Sandbox API.
+	DefaultAPIHost = "api.sandbox.vm.co.mz"
+	// DefaultServiceProviderCode is the default Service Provider Code for Sandbox.
+	DefaultServiceProviderCode = "171717"
+)
+
 // Config holds the configuration parameters required by the M-Pesa API.
 type Config struct {
 	// APIHost is the hostname for the API (e.g., api.sandbox.vm.co.mz).
