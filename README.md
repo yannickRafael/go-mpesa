@@ -17,7 +17,7 @@ go get github.com/yannickRafael/go-mpesa
 import "github.com/yannickRafael/go-mpesa"
 
 config := mpesa.Config{
-    PublicKey:           "<Public Key>",
+    PublicKey:           "<Public Key>", // Note: The key must NOT be in PEM format
     APIHost:             "api.sandbox.vm.co.mz",
     APIKey:              "<API Key>",
     Origin:              "<Origin>",
